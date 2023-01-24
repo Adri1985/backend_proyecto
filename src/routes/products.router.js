@@ -2,36 +2,38 @@ import { Router } from 'express'
 
 
 
-import productManager from '../classes/productManager.js'
+import productManager from '../dao/db/productManager.js'
 
 const router = Router()
 let productManager1 = new productManager()  
 
 
 router.get('/', (request, response) =>{
+    console.log("entra al endpoint /")
     
     let limit = request.query.limit
-    productManager1.getProducts().then((element)=> response.send(limit? element.slice(0,limit): element))
+    productManager1.getProductsDB().then(elements =>{
+        response.send(limit? elements.slice(0,limit): elements)
+        console.log("products en api", elements)
+    })
 
 })
 
 router.get('/:id', (request, response) =>{
-    const id = request.params.id
-      
+    const id = request.params.id 
     productManager1.getProductById(id).then((element)=> response.send(element))
 })
 
 router.post('/', async (req, res) => {
-    const {code,title, description, price, thumbnail, stock} = req.body
-    console.log(await productManager1.getProducts())
-    console.log(code+title+description+price+thumbnail+stock)
-    await productManager1.addProduct(code, title, description, price, thumbnail, stock)
+    //console.log(await productManager1.getProducts())
+   // console.log(code+title+description+price+thumbnail+stock)
+    await productManager1.addProductDB(req.body)
 
     res.send({status: 'success'})
 })
 
 router.put('/:id', async(req, res) =>{
-    const id = parseInt(req.params.id)
+    const id = req.params.id
     const dataUPD = req.body
 
     const result = await productManager1.updateProduct(id, dataUPD)
@@ -39,5 +41,10 @@ router.put('/:id', async(req, res) =>{
     res.json({status:"success", result})
 })
 
+router.delete('/:id', async(req, res) => {
+    const pid = req.params.id
+    const result = await productManager1.deleteProduct(pid)
+    res.send({status: "success", payload: result})
+})
 
 export default router

@@ -1,5 +1,7 @@
 import Product from './Product.js'
 
+import productModel from '../models/product.model.js'
+
 import fs from 'fs'
 
 class productManager{
@@ -14,20 +16,19 @@ class productManager{
         this.products = products
     }
     
-    getNextID= () => {
-        const count =this.products.length
-        return (count> 0) ? this.products[count-1].id + 1 : 1
-    }
 
-    grabarArchivo = async () =>{
-        await fs.promises.writeFile(this.filename, JSON.stringify(this.products))
-        
-        console.log('archivo guardado')
-    
-    }
     
         // constructor por parametros
-    addProduct = async( code,title, description, price, thumbnail, stock) =>{
+    addProduct = async( product) =>{
+        const result = await productModel.create(product)
+
+        return (result)
+
+    }   
+    // constructor por objeto Product
+
+    addProductDB = async( product) =>{   // DEJO LAS VALIDACIONES QUE EXISTIAN
+        const {code,title, description, price, thumbnail, stock} = product
         if (this.products.find((el)=> el.code == code)!= undefined)
         {
             console.log("codigo duplicado")
@@ -36,9 +37,10 @@ class productManager{
 
             console.log(`codeito ${code} title ${title} description ${description} price ${price} thumbnail ${thumbnail} stock ${stock}`)
             if(code&&title&&description&&price&&thumbnail&&stock){
-                this.products.push(new Product(this.getNextID(),code,title, description, price, thumbnail, stock))
-                console.log("productos", this.products)
-                await this.grabarArchivo()
+                //this.products.push(new Product(this.getNextID(),code,title, description, price, thumbnail, stock))
+                //console.log("productos", this.products)
+                const result = await productModel.create(product)
+                return({status:'success', payload:result})
                 console.log("Producto agregado a la lista")
             }
             else{
@@ -47,28 +49,14 @@ class productManager{
         }  
 
     }   
-    // constructor por objeto Product
 
   
     deleteProduct= async(id) =>{
-        let contenido = await (fs.promises.readFile(this.filename, 'utf-8'))
-        if(contenido)
-        {
-            let filteredProducts=  JSON.parse(contenido).filter ((el) => el.id != id)
-            console.log("tamanio filtered",filteredProducts.length)
-            console.log("productos", this.products.length)
-            if(filteredProducts.length < this.products.length) // borro el producto, grabar el archivo
-            {
-                this.setProducts(filteredProducts)
-                this.grabarArchivo()
-            }
-            else{
-                console.log("ID No encontrado, no se pudo borrar el producto")
-            }
-        }
+        const result = await productModel.deleteOne({_id: id})
+        return (result)
     }   
 
-    getProducts = async() =>{
+    /*getProducts = async() =>{
         return fs.promises.readFile(this.filename, 'utf-8')
         .then (content=> {
             return JSON.parse(content)
@@ -78,14 +66,20 @@ class productManager{
             return []
         })
         
+    }*/
+
+    getProductsDB = async() =>{
+        const products = await productModel.find().lean().exec()
+        console.log("products en db", products)
+    
+        return products
+        
     }
 
+
     getProductById = async(id) => {
-        let contenido = await (fs.promises.readFile(this.filename, 'utf-8'))
-        if(contenido)
-        {
-            const productFound =  JSON.parse(contenido).find((el) => el.id == id)
-            console.log("productFound", productFound)
+        let productFound = await productModel.findOne({_id: id}).lean().exec()
+      
             if (productFound == undefined){
                 console.log (`product ${id} not found`)
                 return({})
@@ -94,28 +88,15 @@ class productManager{
                 console.log("product found",productFound)
                 return(productFound)
             }
-        }
-        else{
-            return({})
-        }     
+     
     }
-    updateProduct =(id, updData)=>{
-        let i = 0
-            for (const productToUpdate of this.products){
-                if(productToUpdate.id == id){
-                    let productUpdated = {...productToUpdate,...updData }
-                    console.log("producto a actualizar", productUpdated)
-                    //console.log("producto actualizado", productUpdated)
-                    this.products[i] = productUpdated
-                }
-               i++ 
-            }
-            console.log("productos actualizados", this.products)
-            this.grabarArchivo() // guarda en el archivo lo que quedo en this.products
-        }   
+    updateProduct = async(id, updProduct)=>{
+       
+        let result = await productModel.updateOne({_id: id}, updProduct)
+        return (result)
     
-    
-   
+}
+
 }
 export default productManager
 

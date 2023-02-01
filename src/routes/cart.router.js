@@ -32,7 +32,7 @@ router.get('/viewCart/:id', (request, response) =>{
     cartManager1.getCartById(id).then((element)=> {
 
         console.log("element", element)
-        
+
         response.render('cart',element)
     })   
 })
@@ -43,6 +43,7 @@ router.post('/', async (req, res) => {
 })
 
 router.post('/:cid/product/:pid', async(req, res) =>{
+    console.log("entra a api carts")
     const cid = mongoose.Types.ObjectId(req.params.cid)
     const pid = mongoose.Types.ObjectId(req.params.pid)
     const quantity = parseInt(req.body.quantity)
@@ -70,6 +71,8 @@ router.put('/:cid', async(req,res)=>{
 })
 
 router.put('/:cid/products/:pid', async(req,res)=> {
+
+ 
     const quantityObj = req.body
     const pid = req.params?.pid
     const cid = req.params?.cid

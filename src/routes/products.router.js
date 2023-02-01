@@ -12,7 +12,7 @@ let productManager1 = new productManager()
 router.get('/', (request, response) =>{
     console.log("entra al endpoint /")
     
-    let limit = request.query?.limit|| 2
+    let limit = request.query?.limit|| 10
     let page = request.query?.page|| 1
     let orden = request.query?.orden|| 1
     const filter = request.query?.filter || ''
@@ -41,7 +41,7 @@ router.get('/', (request, response) =>{
 
 router.get('/:id', (request, response) =>{
     const id = request.params.id 
-    productManager1.getProductById(id).then((element)=> response.send(element))
+    productManager1.getProductById(id).then((element)=> response.render('product',element))
 })
 
 router.post('/', async (req, res) => {

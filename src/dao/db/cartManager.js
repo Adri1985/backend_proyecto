@@ -15,9 +15,10 @@ class cartManager{
  
 
     
-    create = async(cart) =>{
-     
-        const result = await cartModel.create(cart)
+    create = async() =>{
+        const cartData = {products:[]}
+        const result = await cartModel.create(cartData)
+        console.log("result del create", result)
         return (result)
     
         }   
@@ -26,9 +27,11 @@ class cartManager{
         const result = await cartModel.updateOne({_id: id}, updData)
     }
 
-    addProduct = async( cartID, productID) =>{
+    addProduct = async( cartID, productID, qty) =>{
         const cart = await cartModel.findOne({_id: cartID})
-        cart.products.push({product: productID})
+        console.log("qty", qty)
+
+        cart.products.push({product: productID, quantity: qty||1})
         const result = await cartModel.updateOne({_id: cartID}, cart)
         return (result)
     }   
@@ -44,6 +47,45 @@ class cartManager{
 
     getCartById = async(id) => {
         const cart = await cartModel.findOne({_id: id}).lean().exec() 
+    }
+
+    deleteProdFromCart= async(cid, pid) =>{
+        let cartFound = await cartModel.findOne({_id: cid}).lean().exec()
+      
+        if (cartFound == undefined){
+            console.log(`Cart ${cid} not found`)
+            return({})
+        }
+        else{
+            const cartProductsFiltered = cartFound.products.filter(prod => prod.product != pid)
+            cartFound.products=cartProductsFiltered
+            let result = await cartModel.updateOne({_id:cid}, cartFound)
+        }
+    }
+
+    updateProductsOnCart = async(cid, products) => {
+        let cartFound = await cartModel.findOne({_id: cid}).lean.exec()
+        cartFound.products = products
+        let result = await cartModel.updateOne({_id: cid}, cartFound)
+        return (result)
+    }
+
+    updateProductQuantity= async(cid, pid, quantity)=>{
+        let cartFound = await cartModel.findOne({_id: cid}).lean.exec()
+        for (let i = 0; i< cartFound.products.lenght; i++){
+            if(cartFound.products[i]._id = pid)
+                cartFound.products[i].quantity = quantity
+        }
+        let result = await cartModel.updateOne({_id:id}, cartFound)
+        return(result)
+    }
+
+    deleteProducsFromCart = async(cid) =>{
+        let cartFound = JSON.stringify(JSON.parse(await cartModel.findOne({_id: cid}).lean.exec()))
+        cartFound.products = []
+        let result = await cartModel.updateOne({_id: cid}, cartFound)
+        return(result)
+
     }
  
     

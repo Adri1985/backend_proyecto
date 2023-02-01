@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { response, Router } from 'express'
 
 import mongoose from 'mongoose'
 
@@ -32,10 +32,42 @@ router.post('/', async (req, res) => {
 
 router.post('/:cid/product/:pid', async(req, res) =>{
     const cid = mongoose.Types.ObjectId(req.params.cid)
-    const pid = parseInt(req.params.pid)
-    const cart = await cartManager1.addProduct(cid, pid)
+    const pid = mongoose.Types.ObjectId(req.params.pid)
+    const quantity = parseInt(req.body.quantity)
+    console.log("quantity", quantity)
+    const cart = await cartManager1.addProduct(cid, pid, quantity)
     res.json({status:"success", cart})
 })
+
+router.delete('/:cid/products/:pid', async(req,res)=>{
+    console.log("entra al endpoint")
+    const cid = req.params.cid 
+    const pid = req.params.pid
+    const result = await cartManager1.deleteProdFromCart(cid, pid).then((element)=> res.send(element))
+
+})
+
+router.put(':cid', async(req,res)=>{
+    const cid = req.params.cid 
+    const products = req.body
+    const result = await cartManager1.updateProductsOnCart(cid, products).then((element)=> res.send(element))
+
+})
+
+router.put(':cid/products/:pid', async(req,res)=> {
+    const quantity = req.body
+    const pid = req.params?.pid
+    const cid = req.params?.cid
+    const result = await cartManager1.updateProductQuantity(cid, pid, quantity).then((element)=> res.send(element))
+
+})
+
+router.delete(':cid', async(req,res)=>{
+    const cid = req.params?.cid
+    const result = await cartManager1.deleteProductsFromCart(cid).then((element)=> response.send(element))
+})
+
+
 
 
 export default router

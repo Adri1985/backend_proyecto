@@ -68,11 +68,11 @@ class productManager{
         
     }*/
 
-    getProductsDB = async() =>{
-        const products = await productModel.find().lean().exec()
-        console.log("products en db", products)
+    getProductsDB = async(search, options) =>{
+        const productsPaginated = await productModel.paginate(search, options )
+        console.log("products en db", productsPaginated)
     
-        return products
+        return productsPaginated
         
     }
 

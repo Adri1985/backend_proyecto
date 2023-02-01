@@ -1,5 +1,6 @@
 import { Router } from 'express'
 
+import querystring from 'querystring'
 
 
 import productManager from '../dao/db/productManager.js'
@@ -11,9 +12,25 @@ let productManager1 = new productManager()
 router.get('/', (request, response) =>{
     console.log("entra al endpoint /")
     
-    let limit = request.query.limit
-    productManager1.getProductsDB().then(elements =>{
-        response.send(limit? elements.slice(0,limit): elements)
+    let limit = request.query?.limit|| 10
+    let page = request.query?.page|| 1
+    let orden = request.query?.orden|| 1
+    const filter = request.query?.filter || ''
+
+    const filterObj = JSON.parse(JSON.stringify(querystring.parse(filter)))
+    console.log("Filtro", filterObj)
+
+    const options = {limit, page, lean:true, sort:{price: orden}}  
+
+
+    productManager1.getProductsDB(filterObj, options).then(elements =>{
+        
+        let  {totalPages, prevPage, nextPage, page,hasPrevPage, hasNextPage, prevLink ='linkprev', nextLink="linkNext"} = elements    
+        let objectResponse = {totalPages, prevPage, nextPage, page, hasPrevPage, hasNextPage, prevLink, nextLink}
+        objectResponse.result = elements.totalDocs>0? "Success": "Failure"
+        objectResponse.payload = elements.docs
+        console.log("result", objectResponse)
+        response.render('products', objectResponse)
         console.log("products en api", elements)
     })
 

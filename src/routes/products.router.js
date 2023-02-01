@@ -12,7 +12,7 @@ let productManager1 = new productManager()
 router.get('/', (request, response) =>{
     console.log("entra al endpoint /")
     
-    let limit = request.query?.limit|| 10
+    let limit = request.query?.limit|| 2
     let page = request.query?.page|| 1
     let orden = request.query?.orden|| 1
     const filter = request.query?.filter || ''
@@ -25,12 +25,15 @@ router.get('/', (request, response) =>{
 
     productManager1.getProductsDB(filterObj, options).then(elements =>{
         
-        let  {totalPages, prevPage, nextPage, page,hasPrevPage, hasNextPage, prevLink ='linkprev', nextLink="linkNext"} = elements    
-        let objectResponse = {totalPages, prevPage, nextPage, page, hasPrevPage, hasNextPage, prevLink, nextLink}
+        let  {totalPages, prevPage, nextPage, page,hasPrevPage, hasNextPage} = elements    
+        let objectResponse = {totalPages, prevPage, nextPage, page, hasPrevPage, hasNextPage}
         objectResponse.result = elements.totalDocs>0? "Success": "Failure"
         objectResponse.payload = elements.docs
+        objectResponse.prevLink = hasPrevPage? `/api/products?page=${prevPage}`:''
+        objectResponse.nextLink = hasNextPage? `/api/products?page=${nextPage}`:''
         console.log("result", objectResponse)
         response.render('products', objectResponse)
+        //response.render('index', objectResponse, {helpers: { json: function (context) { return JSON.stringify(context);  } }});
         console.log("products en api", elements)
     })
 

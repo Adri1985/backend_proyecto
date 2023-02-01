@@ -20,9 +20,21 @@ router.get('/', (request, response) =>{
 
 router.get('/:id', (request, response) =>{
     console.log("entra en /:id")
-    const id = parseInt(request.params.id)
+    const id = request.params.id
       
     cartManager1.getCartById(id).then((element)=> response.send(element))
+})
+
+router.get('/viewCart/:id', (request, response) =>{
+    console.log("entra en /:id")
+    const id = request.params.id
+      
+    cartManager1.getCartById(id).then((element)=> {
+
+        console.log("element", element)
+        
+        response.render('cart',element)
+    })   
 })
 
 router.post('/', async (req, res) => {
@@ -47,24 +59,27 @@ router.delete('/:cid/products/:pid', async(req,res)=>{
 
 })
 
-router.put(':cid', async(req,res)=>{
+router.put('/:cid', async(req,res)=>{
     const cid = req.params.cid 
+
+    console.log("cid", cid);
     const products = req.body
+    console.log(products)
     const result = await cartManager1.updateProductsOnCart(cid, products).then((element)=> res.send(element))
 
 })
 
-router.put(':cid/products/:pid', async(req,res)=> {
-    const quantity = req.body
+router.put('/:cid/products/:pid', async(req,res)=> {
+    const quantityObj = req.body
     const pid = req.params?.pid
     const cid = req.params?.cid
-    const result = await cartManager1.updateProductQuantity(cid, pid, quantity).then((element)=> res.send(element))
+    const result = await cartManager1.updateProductQuantity(cid, pid, quantityObj.quantity).then((element)=> res.send(element))
 
 })
 
-router.delete(':cid', async(req,res)=>{
+router.delete('/:cid', async(req,res)=>{
     const cid = req.params?.cid
-    const result = await cartManager1.deleteProductsFromCart(cid).then((element)=> response.send(element))
+    const result = await cartManager1.deleteProductsFromCart(cid).then((element)=> res.send(element))
 })
 
 

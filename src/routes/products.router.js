@@ -32,9 +32,11 @@ router.get('/', (request, response) =>{
         objectResponse.prevLink = hasPrevPage? `/api/products?page=${prevPage}`:''
         objectResponse.nextLink = hasNextPage? `/api/products?page=${nextPage}`:''
         console.log("result", objectResponse)
+        objectResponse.user = request.session.user
         response.render('products', objectResponse)
         //response.render('index', objectResponse, {helpers: { json: function (context) { return JSON.stringify(context);  } }});
         console.log("products en api", elements)
+        console.log("user ", request.session.user)
     })
 
 })

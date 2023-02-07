@@ -2,6 +2,8 @@
 
 <H1>PRODUCTS</H1>
 
+<h2>Welcome {{user.first}} {{user.last_name}}</h2>
+
 <div>
     <table>
         <thead>
@@ -34,5 +36,9 @@
             <a href="{{nextLink}}">Siguiente</a>
         {{/if}}
     </div>
-    <a href="/api/carts/viewcart/63d9d629fc420e0e4f35bb85">VIEW CART</a>
+   
+    <form action="/session/logout" method="get">
+
+         <input type="submit" value="Log Out">
+    </form>
 </div>

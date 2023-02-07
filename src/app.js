@@ -6,12 +6,16 @@ import handlebars from 'express-handlebars'
 import __dirname from './utils.js'
 import routerViews from './routes/views.router.js'
 import chatManager from './dao/db/chatManager.js'
-
+import sessionRouter from './routes/session.router.js'
+import session from "express-session"
+import MongoStore from 'connect-mongo'
 
 
 import {Server} from 'socket.io'
 
 const app = express()
+const URI = "mongodb+srv://ecommerce_main:ehq@ecommerce.iv6wj6x.mongodb.net"
+const DB_NAME = 'test'
 
 app.use(express.json())
 app.use('/static', express.static('public'))
@@ -20,8 +24,19 @@ app.use('/static', express.static('public'))
 app.engine('handlebars', handlebars.engine())
 app.set('views', __dirname + '/views')
 app.set('view engine', 'handlebars')
+app.use(session({
+    store:MongoStore.create({
+        mongoUrl: URI,
+        dbName : DB_NAME
+
+    }),
+    secret:'mysecret',
+    resave:true,
+    saveUninitialized :true
+}))
 app.use(express.static(__dirname+'/public'))
 app.use('/', routerViews)
+app.use('/session', sessionRouter)
 
 
 
@@ -29,11 +44,11 @@ app.use('/api/products', productsRouter)
 app.use('/api/carts', cartRouter)
 //app.use('/api/pets', petsRouter)
 
-const uri = "mongodb+srv://ecommerce_main:ehq@ecommerce.iv6wj6x.mongodb.net/test"
+
 
 const messages =[]
 mongoose.set('strictQuery', false)
-mongoose.connect(uri, error => {
+mongoose.connect(URI, {dbName: DB_NAME}, error => {
     if (error) {
         console.log('No se pudo conectar a la DB:  ', error);
         return

@@ -2,6 +2,8 @@ import Product from './Product.js'
 
 import productModel from '../models/product.model.js'
 
+
+
 import fs from 'fs'
 
 class productManager{

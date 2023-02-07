@@ -12,13 +12,16 @@ import MongoStore from 'connect-mongo'
 
 
 import {Server} from 'socket.io'
+import cors from 'cors'
 
 const app = express()
 const URI = "mongodb+srv://ecommerce_main:ehq@ecommerce.iv6wj6x.mongodb.net"
 const DB_NAME = 'test'
 
 app.use(express.json())
+app.use(express.urlencoded({extended:true}))
 app.use('/static', express.static('public'))
+
 
 // Config engine templates
 app.engine('handlebars', handlebars.engine())
@@ -34,6 +37,9 @@ app.use(session({
     resave:true,
     saveUninitialized :true
 }))
+
+app.use(cors())
+
 app.use(express.static(__dirname+'/public'))
 app.use('/', routerViews)
 app.use('/session', sessionRouter)

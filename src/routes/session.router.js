@@ -17,19 +17,27 @@ router.get('/login', (req, res)=>{
 router.post('/register', async(req,res)=>{
     console.log('entra en crear usuario')
     console.log('body', req.body)
+    const userNew = req.body
     console.log("UserNew: ",userNew)
+    if(isAdmin(userNew)){
+        userNew.role='admin'
+    }else userNew.role='user'
 
     const user = new userModel(userNew)
     await user.save()
     res.redirect('/session/login')
 })
 
+const isAdmin=(user)=>{
+    return(user.email=='adminCoder@coder.com'&& user.password=='adminCod3r123')
+}
 
 
 //API para login
 router.post('/login', async(req,res)=>{
     console.log("Body ", req.body)
-    const {email, password} = {email:'adri@gmail.com', password:'adri2022'}
+    //const {email, password} = req.body
+    const {email, password}=req.body
     console.log('email and pwd', email+"  "+password)
     const user = await userModel.findOne({email, password}).lean().exec()
     console.log('user', user)

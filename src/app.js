@@ -9,6 +9,8 @@ import chatManager from './dao/db/chatManager.js'
 import sessionRouter from './routes/session.router.js'
 import session from "express-session"
 import MongoStore from 'connect-mongo'
+import passport from 'passport'
+import initializatePassport from './config/passport.config.js'
 
 
 import {Server} from 'socket.io'
@@ -28,21 +30,18 @@ app.engine('handlebars', handlebars.engine())
 app.set('views', __dirname + '/views')
 app.set('view engine', 'handlebars')
 app.use(session({
-    store:MongoStore.create({
-        mongoUrl: URI,
-        dbName : DB_NAME
-
-    }),
-    secret:'mysecret',
-    resave:true,
-    saveUninitialized :true
+  secret: "CoderSecrets"
 }))
+initializatePassport()
+app.use(passport.initialize())
+app.use(passport.session())
+
 
 app.use(cors())
 
 app.use(express.static(__dirname+'/public'))
 app.use('/', routerViews)
-app.use('/session', sessionRouter)
+app.use('/api/session', sessionRouter)
 
 
 

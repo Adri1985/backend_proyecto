@@ -1,7 +1,7 @@
 import {Router} from 'express'
 import userModel from '../dao/models/user.model.js'
 import passport from 'passport'
-
+import {createHash} from '../utils.js'
 const router = Router()
 
 //Vista para registrar usuarios
@@ -18,12 +18,9 @@ router.get('/login', (req, res)=>{
 router.post('/register', async(req,res)=>{
     console.log('entra en crear usuario')
     console.log('body', req.body)
-    const userNew = req.body
+    const userNew = createHash(req.body.password)
+    userNew.password =
     console.log("UserNew: ",userNew)
-    if(isAdmin(userNew)){
-        userNew.role='admin'
-    }else userNew.role='user'
-
     const user = new userModel(userNew)
     await user.save()
     res.redirect('/session/login')

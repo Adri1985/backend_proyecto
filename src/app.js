@@ -11,6 +11,7 @@ import session from "express-session"
 import MongoStore from 'connect-mongo'
 import passport from 'passport'
 import initializatePassport from './config/passport.config.js'
+import { passportCall } from './utils.js'
 
 
 import {Server} from 'socket.io'
@@ -45,7 +46,7 @@ app.use('/api/session', sessionRouter)
 
 
 
-app.use('/api/products', productsRouter)
+app.use('/api/products',productsRouter)
 app.use('/api/carts', cartRouter)
 //app.use('/api/pets', petsRouter)
 

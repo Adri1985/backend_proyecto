@@ -1,14 +1,12 @@
 
 import fs from 'fs'
 
-import cartModel from '../models/cart.model.js'
+import CartModel from '../models/CartModel.js'
 
 class cartManager{
     constructor()
     {
-        this.carts = []
-        this.filename = '../carts.json'
-
+        this.cartModel = new CartModel()
     }
 
     
@@ -39,8 +37,8 @@ class cartManager{
 
    
 
-    getCarts = async() =>{
-       const carts = await cartModel.find().lean().exec()
+    getAll = async() =>{
+       const carts = await this.cartModel.getAll()
        return carts
         
     }

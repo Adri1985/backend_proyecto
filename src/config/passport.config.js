@@ -69,8 +69,8 @@ const initializatePassport = ()=>{
                 role:'admin'
             })
             //await newUser.save()
-            console.log("no existe el user en passport")
-            return done(null, {})
+            console.log("no existe el user en passport", newUser)
+            return done(null, newUser)
         }
         catch(error){
             return done('Error to login with github' + error)

@@ -14,9 +14,12 @@ router.get('/register', (req,res)=>{
 
 //Api para crear usuarios en la db
 router.post('/register', passport.authenticate('register', { failureRedirect: '/session/failregister' }), async (req, res) => {
-    
-    
-    res.redirect('/session/login')
+    res.json({result:'ok'})
+})
+
+router.get('/failregister',(req,res)=>{
+    console.log("fail register")
+    res.json({error:'failed register'})
 })
 
 // Vista de login
@@ -33,7 +36,9 @@ const isAdmin=(user)=>{
 
 
 //API para login usando estrategia JWT. Devuelve el token generado a traves de la cookie especificada en JWT_COOKIE_NAME
-router.post('/login', passport.authenticate('login', {failureRedirect: '/session/faillogin'}), async(req,res)=>{
+router.post('/login', passport.authenticate('login', {failureRedirect: '/session/failllllogin'}), async(req,res)=>{
+    
+    console.log("user")
     if(!req.user) {
         return res.status(400).send({status: 'error', error:'Invalid Credentials'})
     }

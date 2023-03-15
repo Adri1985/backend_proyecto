@@ -21,7 +21,7 @@ const initializatePassport = ()=>{
         passReqToCallback: true,
         usernameField: 'email'
     }, async (req, username, password, done) => {
-
+        console.log("en register")
         const {first_name, last_name, email, age } = req.body
         try {
             const user = await userModel.findOne({email: username})
@@ -43,7 +43,6 @@ const initializatePassport = ()=>{
         } catch (error) {
             return done("[LOCAL] Error al obtener user " + error)
         }
-
 
     }))
 
@@ -80,8 +79,11 @@ const initializatePassport = ()=>{
 
     //Login strategy
     passport.use('login', new localStrategy({
-        usernameField: 'email'
-    }, async(username, password, done) => {
+        usernameField: 'username',
+        passwordField: 'password'
+    }, async(req,username, password, done) => {
+        const user = req.body
+        console.log("user", user)
         try{
             console.log("username en passport", username)
             console.log("password en passport", password)

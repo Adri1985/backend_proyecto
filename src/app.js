@@ -5,13 +5,18 @@ import mongoose from 'mongoose'
 import handlebars from 'express-handlebars'
 import __dirname from './utils.js'
 import routerViews from './routes/views.router.js'
-import chatManager from './dao/db/chatManager.js'
+import MessageManager from './manager/message.manager.js'
 import sessionRouter from './routes/session.router.js'
 import session from "express-session"
 import MongoStore from 'connect-mongo'
 import passport from 'passport'
 import initializatePassport from './config/passport.config.js'
 import { passportCall } from './utils.js'
+import cookieParser from 'cookie-parser'
+
+import usersRouter from './routes/users.router.js'
+import ordersRouter from './routes/users.router.js'
+import storesRouter from './routes/users.router.js'
 
 
 import {Server} from 'socket.io'
@@ -24,6 +29,7 @@ const DB_NAME = 'test'
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use('/static', express.static('public'))
+app.use(cookieParser())
 
 
 // Config engine templates
@@ -36,17 +42,26 @@ app.use(session({
 initializatePassport()
 app.use(passport.initialize())
 app.use(passport.session())
-
+//  app.all('/*', function(req, res) {
+//      req.header("Access-Control-Allow-Origin", "*");
+//      req.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//  });
 
 app.use(cors())
 
 app.use(express.static(__dirname+'/public'))
 app.use('/', routerViews)
 app.use('/api/session', sessionRouter)
+app.use('/api/users', usersRouter)
+app.use('/api/orders', ordersRouter)
+app.use('/api/stores', storesRouter)
 
 
 
-app.use('/api/products',productsRouter)
+
+
+app.use('/api/products',passportCall('jwt'),productsRouter)
+//app.use('/api/products',productsRouter)
 app.use('/api/carts', cartRouter)
 //app.use('/api/pets', petsRouter)
 
@@ -70,7 +85,7 @@ mongoose.connect(URI, {dbName: DB_NAME}, error => {
         socket.on('message', data => {
             messages.push(data)
             console.log("data", data)
-            new chatManager().addMsg(data)
+            new MessageManager().addMsg(data)
             io.emit('logs', messages)
         })
     })

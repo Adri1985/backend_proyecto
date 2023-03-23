@@ -1,10 +1,8 @@
 import {Router} from 'express'
-import userModel from '../dao/models/user.model.js'
 import passport from 'passport'
-import {createHash} from '../utils.js'
+import {createHash, generateToken} from '../utils.js'
 const router = Router()
 
-import { JWT_COOKIE_NAME } from '../config/credentials.js'
 
 //Vista para registrar usuarios
 router.get('/register', (req,res)=>{
@@ -14,12 +12,9 @@ router.get('/register', (req,res)=>{
 
 //Api para crear usuarios en la db
 router.post('/register', passport.authenticate('register', { failureRedirect: '/session/failregister' }), async (req, res) => {
-    res.json({result:'ok'})
-})
-
-router.get('/failregister',(req,res)=>{
-    console.log("fail register")
-    res.json({error:'failed register'})
+    
+    
+    res.redirect('/session/login')
 })
 
 // Vista de login
@@ -36,20 +31,16 @@ const isAdmin=(user)=>{
 
 
 //API para login usando estrategia JWT. Devuelve el token generado a traves de la cookie especificada en JWT_COOKIE_NAME
-router.post('/login', passport.authenticate('login', {failureRedirect: '/session/failllllogin'}), async(req,res)=>{
+router.post('/login', passport.authenticate('login', {failureRedirect: '/session/faillogin'}), async(req,res)=>{
+    console.log('pasa el passport de login')
     
-    console.log("user")
     if(!req.user) {
         return res.status(400).send({status: 'error', error:'Invalid Credentials'})
     }
-    req.session.user ={
-        first_name : req.user.first_name,
-        last_name: req.user.last_name,
-        email: req.user.email,
-        age: req.user.age
-    }
-    console.log("before response", req.session.user)
-    res.cookie(JWT_COOKIE_NAME, req.user.token).redirect('/api/products')
+    const token = generateToken(req.user)    
+    console.log("Token: ", token, "req.user ", req.user)
+    res.send({message: "Logged in successfully", token: token, user: req.user})
+    //res.json(req.user)
 }
 )
 
@@ -74,7 +65,10 @@ router.get(
          //   console.log('entra en github')
     //}
     passport.authenticate('github',{scope:['user:email']}),
-    async(req,res)=>{}
+    async(req,res)=>{
+        console.log("entra a github")
+        res.send("entro a github")
+    }
 )
 
 router.get(
@@ -84,7 +78,7 @@ router.get(
         console.log("callback: ")
         req.session.user = req.user
         console.log("User Session", req.session.user)
-        res.redirect('/api/products')
+        res.send({'User':req.session.user})
     } 
 )
 
